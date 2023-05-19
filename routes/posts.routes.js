@@ -40,7 +40,8 @@ router.post("", (req, res) => {
     body,
   };
   let findTitle = posts.find((post) => post.title === title);
-  if (!findTitle) {
+  let findBody = posts.find((post) => post.body === body);
+  if (!findTitle && !findBody) {
     try {
       posts.unshift(newPost);
       fs.writeFileSync("./user-post-api/posts.json", JSON.stringify(posts));
@@ -49,24 +50,25 @@ router.post("", (req, res) => {
       res.json({ error: error });
     }
   } else {
-    res.json({ message: "Title already in use!" });
+    res.json({ message: "Title or content already in use!" });
   }
 });
 
 router.put("/:id", (req, res) => {
   const { id } = req.params;
-  const { email } = req.body;
-  let users = JSON.parse(fs.readFileSync("./user-post-api/posts.json"));
-  let tFinded = users.findIndex((t) => t.id === +id);
+  const { title, body } = req.body;
+  let posts = JSON.parse(fs.readFileSync("./user-post-api/posts.json"));
+  let tFinded = posts.findIndex((t) => t.id === +id);
   if (tFinded !== -1) {
-    let updateUser = {
-      ...users[tFinded],
-      email: email,
+    let updatePost = {
+      ...posts[tFinded],
+      title,
+      body,
     };
-    users[tFinded] = updateUser;
+    posts[tFinded] = updatePost;
     try {
-      fs.writeFileSync("./user-post-api/posts.json", JSON.stringify(users));
-      res.json({ success: "update successfully" });
+      fs.writeFileSync("./user-post-api/posts.json", JSON.stringify(posts));
+      res.json({ success: "update post successfully" });
     } catch (error) {
       res.json(error);
     }
@@ -77,18 +79,18 @@ router.put("/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
-  let users = JSON.parse(fs.readFileSync("./user-post-api/posts.json"));
-  let findUsers = users.findIndex((user) => user.id === +id);
-  if (findUsers !== -1) {
+  let posts = JSON.parse(fs.readFileSync("./user-post-api/posts.json"));
+  let findpost = posts.findIndex((user) => user.id === +id);
+  if (findpost !== -1) {
     try {
-      users.splice(findUsers, 1);
-      fs.writeFileSync("./user-post-api/posts.json", JSON.stringify(users));
-      res.json({ message: "delete users successfully" });
+      posts.splice(findpost, 1);
+      fs.writeFileSync("./user-post-api/posts.json", JSON.stringify(posts));
+      res.json({ message: "delete post successfully" });
     } catch (error) {
       res.json({ error: error });
     }
   } else {
-    res.json({ message: "Can't find users" });
+    res.json({ message: "Can't find post" });
   }
 });
 

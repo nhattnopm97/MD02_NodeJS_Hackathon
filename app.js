@@ -18,6 +18,19 @@ app.use("/api/v1/users", usersRoutes);
 
 app.use("/api/v1/posts", postsRoutes);
 
+app.get("/api/v1/users/1/posts", (req, res) => {
+  console.log(req.url.split("/")[4]);
+  let userId = req.url.split("/")[4];
+  let posts = JSON.parse(fs.readFileSync("./user-post-api/posts.json"));
+  let postUser = posts.filter((user) => user.userId === +userId);
+  console.log(postUser);
+  if (!postUser) {
+    res.json({ message: "can't find post of this user" });
+  } else {
+    res.json(postUser);
+  }
+});
+
 app.get("/*", (req, res) => {
   res.json({
     message: "Not found",
